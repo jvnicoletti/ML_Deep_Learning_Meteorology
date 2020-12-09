@@ -1,0 +1,192 @@
+#---
+#S�ries Temporais
+#---
+  
+
+
+library(forecast)
+library(readxl)
+library(tidyverse)
+
+#Conhecendo os dados
+
+#definindo diret�rio do banco de dados
+diretorio =  "G:\\My Drive\\Estat�stica\\Dados\\DB";diretorio
+diretorio_ST =  "G:\\My Drive\\Estat�stica\\Dados\\ST\\GDD\\";diretorio_ST
+
+#listando arquivos csv na pasta
+list = list.files(diretorio,full.names = T,pattern = '.csv');list
+#leitura do csv
+df = read.csv(list[4]);df
+
+#listando cidades do df
+lista_cidades = unique(df$Cidade);lista_cidades
+i=1;i
+#separando df por cidade
+while(i<=length(lista_cidades)){
+
+df_filtrado = df[df$Cidade == lista_cidades[i],];df_filtrado
+
+# convertendo para s�ries temporais Anuais
+
+ts_mensal = ts(as.numeric(df_filtrado$GDD),start = c(1990, 1,1),frequency = 12)
+ts_mensal
+
+
+# convertendo para s�ries temporais mensais
+#mes_group = paste0(df_filtrado$YEAR,'-',df_filtrado$MM);mes_group
+#df_filtrado = cbind(df,mes_group)
+
+#df_filtrado_mensal = as.data.frame(group_by(df,YEAR,MM) %>% summarise(media = mean(ALLSKY_SFC_SW_DWN)));df_filtrado_mensal
+
+#ts_mensal = ts(as.numeric(df_filtrado_mensal$media),start = c(1990,1),frequency = 12)
+#ts_mensal
+
+#vendo dados da s�rie temporal; come�o,fim e frequencia
+#start(ts_ano)
+#end(ts_ano)
+#frequency(ts_ano)
+
+start(ts_mensal)
+end(ts_mensal)
+frequency(ts_mensal)
+
+
+
+#Gr�ficos do observado
+
+#png(filename=paste0(diretorio_ST,"/",lista_cidades[i],"_Serie_Temporal_Anual.png"))
+#plot(ts_ano) #granularidade anual
+#dev.off()
+
+png(filename=paste0(diretorio_ST,"/",lista_cidades[i],"_Serie_Temporal_Mensal.png"))
+plot(ts_mensal) #granularidade mensal
+dev.off()
+
+
+
+#png(filename=paste0(diretorio_ST,"/",lista_cidades[i],"_Serie_Temporal_Agregado_Anual.png"))
+#plot(aggregate(ts_ano)) #plot de granularidade anual acumulado m�dia di�rio
+#dev.off()
+
+png(filename=paste0(diretorio_ST,"/",lista_cidades[i],"_Serie_Temporal_Agregado_Mensal.png"))
+plot(aggregate(ts_mensal)) #plot de granularidade anual acumulado m�dia mensal
+dev.off()
+
+
+#extraindo uma janela espec�fica de tempo
+
+#plotando 2019 para ambas as ST
+#subst_anual = window(ts_ano,start=c(2019,1), end=c(2019,365))
+#subst_anual
+
+#png(filename=paste0(diretorio_ST,"/",lista_cidades[i],"_2019_anual.png"))
+#plot(subst_anual)
+#dev.off()
+
+
+subst_mensal = window(ts_mensal,start=c(2019,1), end=c(2019,12))
+subst_mensal
+
+png(filename=paste0(diretorio_ST,"/",lista_cidades[i],"_2019_mensal.png"))
+plot(subst_mensal)
+dev.off()
+
+#Decomposi��o da s�rie temporal, a fim de analisar a sazonalidade, tend�ncia e aleatoriedade.
+#dec_anual = decompose(ts_ano)
+#dec_anual
+
+dec_mensal = decompose(ts_mensal)
+dec_mensal
+
+
+#verificando os atributos gerados
+#attributes(dec_anual)
+attributes(dec_mensal)
+
+#Plotando os elementos da decomposi��o
+#png(filename=paste0(diretorio_ST,"/",lista_cidades[i],"_decompose_anual.png"))
+#plot(dec_anual)
+#dev.off()
+
+png(filename=paste0(diretorio_ST,"/",lista_cidades[i],"_decompose_mensal.png"))
+plot(dec_mensal)
+dev.off()
+
+
+
+#png(filename=paste0(diretorio_ST,"/",lista_cidades[i],"_observado_anual.png"))
+#plot(dec_anual$x)
+#dev.off()
+
+#png(filename=paste0(diretorio_ST,"/",lista_cidades[i],"_sazonalidade_anual.png"))
+#plot(dec_anual$seasonal)
+#dev.off()
+
+#png(filename=paste0(diretorio_ST,"/",lista_cidades[i],"_tendencia_anual.png"))
+#plot(dec_anual$trend)
+#dev.off()
+
+#png(filename=paste0(diretorio_ST,"/",lista_cidades[i],"_aleatoriedade_anual.png"))
+#plot(dec_anual$random)
+#dev.off()
+
+png(filename=paste0(diretorio_ST,"/",lista_cidades[i],"_observado_mensal.png"))
+plot(dec_mensal$x)
+dev.off()
+
+png(filename=paste0(diretorio_ST,"/",lista_cidades[i],"_sazonalidade_mensal.png"))
+plot(dec_mensal$seasonal)
+dev.off()
+
+png(filename=paste0(diretorio_ST,"/",lista_cidades[i],"_tendencia_mensal.png"))
+plot(dec_mensal$trend)
+dev.off()
+
+png(filename=paste0(diretorio_ST,"/",lista_cidades[i],"_aleatoriedade_mensal.png"))
+plot(dec_mensal$random)
+dev.off()
+
+
+#separando db para predi��o
+#subst_anual = window(ts_ano,start=c(1990,1), end=c(2018,365))
+subst_mensal = window(ts_mensal,start=c(1990,1), end=c(2018,12))
+
+#dec_anual = decompose(subst_anual)
+#dec_anual
+
+dec_mensal = decompose(subst_mensal)
+dec_mensal
+
+#suaviza��o exponencial, s� funciona para mensal devido a frequencia de dados
+ets_mensal = ets(subst_mensal)
+ets_mensal
+
+#Previs�o para 12 meses
+previsao = forecast(ets_mensal, h=12)
+
+png(filename=paste0(diretorio_ST,"/",lista_cidades[i],"_predicao_exp.png"))
+plot(previsao)
+dev.off()
+
+previsao
+
+#previs�o com Arima para 12 meses
+arima = auto.arima(subst_mensal)
+arima
+previsao_arima = forecast(arima, h=12)
+
+png(filename=paste0(diretorio_ST,"/",lista_cidades[i],"_predicao_arima.png"))
+plot(previsao_arima)
+dev.off()
+
+previsao_arima
+
+class(ets_mensal)
+arima <- sapply(arima, unlist);arima
+
+
+write.csv(previsao_arima,paste0(diretorio_ST,"/",lista_cidades[i],"_pred_arima.csv"))
+write.csv(previsao,paste0(diretorio_ST,"/",lista_cidades[i],"_suavizacao_exp_pred.csv"))
+i=i+1
+}
