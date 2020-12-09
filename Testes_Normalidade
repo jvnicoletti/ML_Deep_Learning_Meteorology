@@ -1,0 +1,86 @@
+#---
+#Testes de Normalidade
+#---
+library(tidyverse)
+
+diretorio =  choose.dir(default = "", caption = "Select folder");diretorio
+diretorio_norm =  choose.dir(default = "", caption = "Select folder");diretorio_norm
+#listando arquivos csv na pasta
+list = list.files(diretorio,full.names = T,pattern = '.csv');list
+#leitura do csv
+df = read.csv(list[1]);df
+i=1;i
+#listando cidades do df
+lista_cidades = unique(df$CIDADE);lista_cidades
+
+while (i<=length(lista_cidades)) {
+  
+#separando df por cidade
+df_filtrado = df[df$CIDADE == lista_cidades[i],];df_filtrado
+
+#vou ter de limitar a base de dados para que caiba no teste de shapiro
+df_filtrado_mensal = as.data.frame(group_by(df,YEAR,MM) %>% summarise(media = mean(WS2M)));df_filtrado_mensal
+
+#Gr�fico QQ
+png(filename=paste0(diretorio_norm,"/",lista_cidades[i],"_qqplot_mensal.png"))
+qqnorm(df_filtrado_mensal$media)
+dev.off()
+
+png(filename=paste0(diretorio_norm,"/",lista_cidades[i],"_qqplot_anual.png"))
+qqnorm(df_filtrado$WS2M)
+dev.off()
+
+#linha
+png(filename=paste0(diretorio_norm,"/",lista_cidades[i],"_qqline_mensal.png"))
+qqnorm(df_filtrado_mensal$media)
+qqline(df_filtrado_mensal$media)
+dev.off()
+
+png(filename=paste0(diretorio_norm,"/",lista_cidades[i],"_qqline_anual.png"))
+qqnorm(df_filtrado$WS2M)
+qqline(df_filtrado$WS2M)
+dev.off()
+
+#Teste de Shapiro
+#Valor de p acima de 0,05, n�o h� ind�cio para a n�o confirmar a hip�tese nula de dados normalmente distribuidos
+shapiro = shapiro.test(df_filtrado_mensal$media)
+shapiro <- sapply(shapiro, unlist)
+write.csv(shapiro,paste0(diretorio_norm,"/",lista_cidades[i],"_shapiro_mensal.csv"))
+#Histograma com linha de densidade
+hist(df_filtrado$WS2M, main="")
+par(new=TRUE)
+
+png(filename=paste0(diretorio_norm,"/",lista_cidades[i],"_densidade_anual.png"))
+plot(density(df_filtrado$WS2M),ylab = "", xlab = "", axes=F, lwd=2.5 ) 
+dev.off()
+
+#Dados n�o normalmente distribuidos
+
+library(semTools)
+
+png(filename=paste0(diretorio_norm,"/",lista_cidades[i],"_qqnorm_anual_prec.png"))
+qqnorm(df_filtrado$PRECTOT)
+dev.off()
+
+png(filename=paste0(diretorio_norm,"/",lista_cidades[i],"_qqline_anual_prec.png"))
+qqnorm(df_filtrado$PRECTOT)
+qqline(df_filtrado$PRECTOT)
+dev.off()
+
+#vou ter de limitar a base de dados para que caiba no teste de shapiro
+df_filtrado_mensal_nao_normal = as.data.frame(group_by(df,YEAR,MM) %>% summarise(media = mean(PRECTOT)));df_filtrado_mensal_nao_normal
+
+shapiro.test(df_filtrado_mensal_nao_normal$media)
+shapiro_prec <- sapply(shapiro, unlist)
+
+write.csv(shapiro_prec,paste0(diretorio_norm,"/",lista_cidades[i],"_shapiro_mensal_prec.csv"))
+
+hist(df_filtrado$PRECTOT, main="")
+par(new=TRUE)
+
+png(filename=paste0(diretorio_norm,"/",lista_cidades[i],"_densidade_anual_prec.png"))
+plot(density(df_filtrado$PRECTOT),ylab = "", xlab = "", axes=F, lwd=2.5 ) 
+dev.off()
+i=i+1;i
+}
+
