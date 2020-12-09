@@ -1,0 +1,43 @@
+library(RgoogleMaps)
+library(nasapower)
+library(tidygeocoder)
+library(ggmap)
+library(readxl)
+library(stringr)
+
+cidades_df = read_excel(file.choose());cidades_df
+
+
+cidades_BR = read_excel(file.choose());cidades_BR
+
+i = 1;i
+
+
+while (i<=length(cidades_df$Municipality)) {
+  latitude = cidades_BR$LATITUDE[cidades_df$Municipality[i] == cidades_BR$nome];latitude
+  longitude = cidades_BR$LONGITUDE[cidades_df$Municipality[i] == cidades_BR$nome];latitude
+  cidade = cidades_BR$nome[cidades_df$Municipality[i] == cidades_BR$nome];cidade
+  Koppen = as.character(cidades_df$K�ppen[i]);Koppen
+  if(length(latitude) != 0){
+    
+  
+  if(i==1){
+  parcial = cbind(latitude,longitude,cidade,Koppen);parcial
+  final = cbind(latitude,longitude,cidade,Koppen)
+  i = i+1;i
+  }else{
+    parcial = cbind(latitude,longitude,cidade,Koppen)
+    final = rbind(final,parcial)
+    i = i+1;i
+  }}
+  else{
+    i=i+1;i
+  }
+  
+  
+  
+  }
+
+diretorio = "G:/My Drive/ESALQ/8� semestre/Meteorologia Aplicada/Koppen Sentelhas/"
+path = paste0(diretorio,'/DB_cidades_brasil_total.csv');path
+write.csv(final,path)
