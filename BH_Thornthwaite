@@ -1,0 +1,138 @@
+library(tidyverse)
+library(xlsx)
+library(lubridate)
+library(readxl)
+library(openxlsx)
+library(ClimClass)
+library(plyr)
+library(RgoogleMaps)
+library(geosphere)
+
+diretorio = 'G:/My Drive/ESALQ/8� semestre/Meteorologia Aplicada/Koppen Sentelhas/';diretorio
+setwd(paste0(diretorio,"quantile/"))
+
+
+list = list.files(diretorio,full.names = T,pattern = '.csv');list
+data = read.csv(list[3], encoding = "UTF-8");data
+
+verao = c(1,2,3,10,11,12);verao
+inverno = c(4,5,6,7,8,9);inverno
+
+lista_cidades = unique(data$Cidade);lista_cidades
+lista_anos = unique(data$X.U.FEFF.Year);lista_anos
+i = 1;i
+
+df_final_final = NULL
+#while (i<=length(lista_cidades)) {
+while (i<=length(lista_cidades)){
+    csv_filtrado_cidade = data[data$Cidade == lista_cidades[i],];csv_filtrado_cidade
+    
+    cidades = csv_filtrado_cidade$Cidade[i];cidades
+    latlong = c(getGeoCode(cidades));latlong
+    latitude =  str_sub((str_split(latlong,'l')[[1]]));latitude
+    longitude =  str_sub((str_split(latlong,'l')[[2]]));longitude
+    longlat = c(latlong[2],latlong[1]);longlat
+    
+    P = csv_filtrado_cidade$P;P
+    year = csv_filtrado_cidade$X.U.FEFF.Year;year
+    month = csv_filtrado_cidade$Month;month
+    Tn = csv_filtrado_cidade$T.MIN..C;Tn
+    Tx = csv_filtrado_cidade$T.MAX..C;Tx
+    parcial = data.frame(cbind(year,month,P,Tn,Tx));parcial
+    
+    
+    j = 1;j
+    final = NULL
+    while (j<=length(lista_anos)) {
+      final[[j]] = parcial[parcial$year == lista_anos[j],];parcial
+      j=j+1;j
+      
+    }
+    
+  
+    climate <-lapply(final, FUN=climate, first.yr=1990, last.yr=2019, max.perc.missing=15);climate
+    
+    climate_test = bind_rows(climate, .id = "column_label");climate_test
+
+    climate_test$column_label = sort(rep(lista_anos,12))
+    
+    
+      thornt_lst <-thornthwaite(series=parcial, 
+                                    clim_norm= climate_test,
+                                    latitude = as.numeric(latitude), first.yr= 1990, 
+                                    last.yr= 2019, snow_melt_coeff=c(0.5,0.5 )  )
+    
+    
+    # splits list into two lists
+    
+      W_balance<-thornt_lst$W_balance;W_balance
+      quantiles<-thornt_lst$quantiles;quantiles
+      W_balance = bind_rows(W_balance, .id = "column_label");W_balance
+    
+    
+    q_list=quantiles;q_list
+    class(q_list) <- "thornthwaite";q_list ## q_list is coerced to a "thornthwaite" S3 object
+    cidades_save = str_split(cidades," ")[[1]][1];cidades_save
+    
+    jpeg(paste0(cidades_save,"_",names(quantiles)[1],"_rplot.jpg"),width = 350, height = 350) 
+    plot(q_list, 
+         st_name=paste0(names(quantiles)[1]," ",cidades), variables=c("Precipitation"), 
+         leg_pos = "topleft", col=c(1:6,1), pch=c(1:6,16),  
+         lty=1, horiz=TRUE,  y.intersp=0.1)
+    dev.off()
+    
+    jpeg(paste0(cidades_save,"_",names(quantiles)[2],"_rplot.jpg"),width = 350, height = 350) 
+    plot(q_list, 
+         st_name=paste0(names(quantiles)[2]," ",cidades), variables=c("Et0"), 
+         leg_pos = "topleft", col=c(1:6,1), pch=c(1:6,16),  
+         lty=1, horiz=TRUE,  y.intersp=0.1)
+    dev.off()
+    
+    jpeg(paste0(cidades_save,"_",names(quantiles)[3],"_rplot.jpg"),width = 350, height = 350) 
+    plot(q_list, 
+         st_name=paste0(names(quantiles)[3]," ",cidades), variables=c("Storage"), 
+         leg_pos = "topleft", col=c(1:6,1), pch=c(1:6,16),  
+         lty=1, horiz=TRUE,  y.intersp=0.1)
+    dev.off()
+    
+    jpeg(paste0(cidades_save,"_",names(quantiles)[4],"_rplot.jpg"),width = 350, height = 350) 
+    plot(q_list, 
+         st_name=paste0(names(quantiles)[4]," ",cidades), variables=c("Prec. - Evap."), 
+         leg_pos = "topleft", col=c(1:6,1), pch=c(1:6,16),  
+         lty=1, horiz=TRUE,  y.intersp=0.1)
+    dev.off()
+    
+    jpeg(paste0(cidades_save,"_",names(quantiles)[5],"_rplot.jpg"),width = 350, height = 350) 
+    plot(q_list, 
+         st_name=paste0(names(quantiles)[5]," ",cidades), variables=c("Deficit"), 
+         leg_pos = "topleft", col=c(1:6,1), pch=c(1:6,16),  
+         lty=1, horiz=TRUE,  y.intersp=0.1)
+    dev.off()
+    
+    jpeg(paste0(cidades_save,"_",names(quantiles)[6],"_rplot.jpg"),width = 350, height = 350) 
+    plot(q_list, 
+         st_name=paste0(names(quantiles)[6]," ",cidades), variables=c("Surplus"), 
+         leg_pos = "topleft", col=c(1:6,1), pch=c(1:6,16),  
+         lty=1, horiz=TRUE,  y.intersp=0.1)
+    dev.off()
+    
+    quantiles = bind_rows(quantiles, .id = "column_label");quantiles
+    
+    classificacao <-lapply(climate, FUN=koeppen_geiger, A_B_C_special_sub.classes=FALSE);classificacao
+    
+    df_final = bind_rows(classificacao, .id = "column_label");df_final
+    df_final = cbind(df_final,unique(csv_filtrado_cidade$Koppen),unique(csv_filtrado_cidade$X.U.FEFF.Year),unique(csv_filtrado_cidade$Cidade));df_final
+    names(df_final) = c(names(df_final)[1:15],"Koppen_mapa","Ano","Cidade");df_final
+    
+path_wb = paste0(diretorio,"wb/",cidades,".csv");path_wb
+path_quantile = paste0(diretorio,"quantile/",cidades,".csv");path_quantile
+    write.csv(W_balance,path_wb)
+    write.csv(quantile,path_quantile)
+    df_final_final[[i]] = df_final
+    i=i+1
+}
+df_final_final = bind_rows(df_final_final, .id = "column_label");df_final_final
+out = paste0(diretorio,"/Koppen_anual.csv");out
+write.csv(final,out)
+unique(final$class)
+unique(final$Koppen_mapa)
