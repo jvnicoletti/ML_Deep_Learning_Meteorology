@@ -4,9 +4,9 @@ library(openxlsx)
 library(lubridate)
 library(SciViews)
 
-setwd('G:/My Drive/ESALQ/8º semestre/Meteorologia Aplicada/YG/')
+setwd('G:/My Drive/ESALQ/8� semestre/Meteorologia Aplicada/YG/')
 
-diretorio = 'G:/My Drive/ESALQ/8º semestre/Meteorologia Aplicada/YG/'
+diretorio = 'G:/My Drive/ESALQ/8� semestre/Meteorologia Aplicada/YG/'
 
 lista_csv = list.files(diretorio,full.names = T,pattern = "final.csv");lista_csv
 lista_kc = list.files(diretorio,full.names = T,pattern = "Kc");lista_kc
@@ -175,8 +175,8 @@ while(k<=29){
         ciclo$ARM_CAD = ciclo$Arm / CAD;ciclo
         ciclo$CTN = ifelse(ciclo$Tmed<16.5,yes = -0.0425+0.035*ciclo$Tmed+0.00325*ciclo$Tmed^2-0.0000925*ciclo$Tmed^3,no = 0.583+0.014*ciclo$Tmed+0.0013*ciclo$Tmed^2-0.000037*ciclo$Tmed^3);ciclo
         ciclo$CTC = ifelse(ciclo$Tmed<16.5,yes = -1.085+0.07*ciclo$Tmed+0.0065*ciclo$Tmed^2-0.000185*ciclo$Tmed^3,no = -0.0425+0.035*ciclo$Tmed+0.00325*ciclo$Tmed^2-0.0000925*ciclo$Tmed^3);ciclo
-        ciclo$PPBn = ((31.7+5.234*ciclo$Q0)*(1-ciclo$n/ciclo$fotóperiodo)*ciclo$CTN)
-        ciclo$PPBc = ((107.2+8.604*ciclo$Q0)*(ciclo$n/ciclo$fotóperiodo)*ciclo$CTC)
+        ciclo$PPBn = ((31.7+5.234*ciclo$Q0)*(1-ciclo$n/ciclo$fot�periodo)*ciclo$CTN)
+        ciclo$PPBc = ((107.2+8.604*ciclo$Q0)*(ciclo$n/ciclo$fot�periodo)*ciclo$CTC)
         ciclo$PPBp = (ciclo$PPBc + ciclo$PPBn);ciclo
         ciclo$IAF = IAF_soja[,1];ciclo
         ciclo$CIAF = ifelse((0.0186+0.37*(ciclo$IAF)-0.035*(ciclo$IAF^2))>1,yes = 1,no = (0.0186+0.37*(ciclo$IAF)-0.035*(ciclo$IAF^2)));
@@ -341,8 +341,8 @@ while(k<=29){
         ciclo$ARM_CAD = ciclo$Arm / CAD;ciclo
         ciclo$CTN = ifelse(ciclo$Tmed<16.5,yes = -0.0425+0.035*ciclo$Tmed+0.00325*ciclo$Tmed^2-0.0000925*ciclo$Tmed^3,no = 0.583+0.014*ciclo$Tmed+0.0013*ciclo$Tmed^2-0.000037*ciclo$Tmed^3);ciclo
         ciclo$CTC = ifelse(ciclo$Tmed<16.5,yes = -1.085+0.07*ciclo$Tmed+0.0065*ciclo$Tmed^2-0.000185*ciclo$Tmed^3,no = -0.0425+0.035*ciclo$Tmed+0.00325*ciclo$Tmed^2-0.0000925*ciclo$Tmed^3);ciclo
-        ciclo$PPBn = ((31.7+5.234*ciclo$Q0)*(1-ciclo$n/ciclo$fotóperiodo)*ciclo$CTN)
-        ciclo$PPBc = ((107.2+8.604*ciclo$Q0)*(ciclo$n/ciclo$fotóperiodo)*ciclo$CTC)
+        ciclo$PPBn = ((31.7+5.234*ciclo$Q0)*(1-ciclo$n/ciclo$fot�periodo)*ciclo$CTN)
+        ciclo$PPBc = ((107.2+8.604*ciclo$Q0)*(ciclo$n/ciclo$fot�periodo)*ciclo$CTC)
         ciclo$PPBp = (ciclo$PPBc + ciclo$PPBn);ciclo
         ciclo$IAF = IAF_soja[,1];ciclo
         ciclo$CIAF = ifelse((0.0186+0.37*(ciclo$IAF)-0.035*(ciclo$IAF^2))>1,yes = 1,no = (0.0186+0.37*(ciclo$IAF)-0.035*(ciclo$IAF^2)));
@@ -514,8 +514,8 @@ ciclo$EXC = EXC;ciclo
 ciclo$ARM_CAD = ciclo$Arm / CAD;ciclo
 ciclo$CTN = ifelse(ciclo$Tmed<16.5,yes = -0.0425+0.035*ciclo$Tmed+0.00325*ciclo$Tmed^2-0.0000925*ciclo$Tmed^3,no = 0.583+0.014*ciclo$Tmed+0.0013*ciclo$Tmed^2-0.000037*ciclo$Tmed^3);ciclo
 ciclo$CTC = ifelse(ciclo$Tmed<16.5,yes = -1.085+0.07*ciclo$Tmed+0.0065*ciclo$Tmed^2-0.000185*ciclo$Tmed^3,no = -0.0425+0.035*ciclo$Tmed+0.00325*ciclo$Tmed^2-0.0000925*ciclo$Tmed^3);ciclo
-ciclo$PPBn = ((31.7+5.234*ciclo$Q0)*(1-ciclo$n/ciclo$fotóperiodo)*ciclo$CTN)
-ciclo$PPBc = ((107.2+8.604*ciclo$Q0)*(ciclo$n/ciclo$fotóperiodo)*ciclo$CTC)
+ciclo$PPBn = ((31.7+5.234*ciclo$Q0)*(1-ciclo$n/ciclo$fot�periodo)*ciclo$CTN)
+ciclo$PPBc = ((107.2+8.604*ciclo$Q0)*(ciclo$n/ciclo$fot�periodo)*ciclo$CTC)
 ciclo$PPBp = (ciclo$PPBc + ciclo$PPBn);ciclo
 ciclo$IAF = IAF_soja[,1];ciclo
 ciclo$CIAF = ifelse((0.0186+0.37*(ciclo$IAF)-0.035*(ciclo$IAF^2))>1,yes = 1,no = (0.0186+0.37*(ciclo$IAF)-0.035*(ciclo$IAF^2)));
@@ -676,8 +676,8 @@ j=j+1
     ciclo$ARM_CAD = ciclo$Arm / CAD;ciclo
     ciclo$CTN = ifelse(ciclo$Tmed<16.5,yes = -0.0425+0.035*ciclo$Tmed+0.00325*ciclo$Tmed^2-0.0000925*ciclo$Tmed^3,no = 0.583+0.014*ciclo$Tmed+0.0013*ciclo$Tmed^2-0.000037*ciclo$Tmed^3);ciclo
     ciclo$CTC = ifelse(ciclo$Tmed<16.5,yes = -1.085+0.07*ciclo$Tmed+0.0065*ciclo$Tmed^2-0.000185*ciclo$Tmed^3,no = -0.0425+0.035*ciclo$Tmed+0.00325*ciclo$Tmed^2-0.0000925*ciclo$Tmed^3);ciclo
-    ciclo$PPBn = ((31.7+5.234*ciclo$Q0)*(1-ciclo$n/ciclo$fotóperiodo)*ciclo$CTN)
-    ciclo$PPBc = ((107.2+8.604*ciclo$Q0)*(ciclo$n/ciclo$fotóperiodo)*ciclo$CTC)
+    ciclo$PPBn = ((31.7+5.234*ciclo$Q0)*(1-ciclo$n/ciclo$fot�periodo)*ciclo$CTN)
+    ciclo$PPBc = ((107.2+8.604*ciclo$Q0)*(ciclo$n/ciclo$fot�periodo)*ciclo$CTC)
     ciclo$PPBp = (ciclo$PPBc + ciclo$PPBn);ciclo
     ciclo$IAF = IAF_soja[,1];ciclo
     ciclo$CIAF = ifelse((0.0186+0.37*(ciclo$IAF)-0.035*(ciclo$IAF^2))>1,yes = 1,no = (0.0186+0.37*(ciclo$IAF)-0.035*(ciclo$IAF^2)));
