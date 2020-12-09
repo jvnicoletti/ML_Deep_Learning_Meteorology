@@ -4,9 +4,9 @@ library(openxlsx)
 library(lubridate)
 library(SciViews)
 
-setwd('G:/My Drive/ESALQ/8º semestre/Meteorologia Aplicada/YG/YG_final')
+setwd('G:/My Drive/ESALQ/8� semestre/Meteorologia Aplicada/YG/YG_final')
 
-diretorio = 'G:/My Drive/ESALQ/8º semestre/Meteorologia Aplicada/YG/YG_final/';diretorio
+diretorio = 'G:/My Drive/ESALQ/8� semestre/Meteorologia Aplicada/YG/YG_final/';diretorio
 
 lista_csv = list.files(diretorio,full.names = T,pattern = "PPf");lista_csv
 lista_PR = list.files(diretorio,full.names = T,pattern = "PR");lista_PR
@@ -143,3 +143,4 @@ while(k<=29){
     j=j+1;j
   }}
 write.csv(EX_08_cidades_final,paste0(diretorio,"Ex_08_final.csv"))  
+        
