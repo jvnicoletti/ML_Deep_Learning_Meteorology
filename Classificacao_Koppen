@@ -1,0 +1,145 @@
+library(tidyverse)
+library(xlsx)
+library(lubridate)
+library(readxl)
+library(openxlsx)
+library(ClimClass)
+library(plyr)
+
+diretorio = 'G:/My Drive/ESALQ/8� semestre/Meteorologia Aplicada/Koppen Sentelhas/';diretorio
+setwd(diretorio)
+
+
+list = list.files(diretorio,full.names = T,pattern = '.csv');list
+data = read.csv(list[3]);data
+
+verao = c(1,2,3,10,11,12);verao
+
+
+lista_cidades = unique(data$Cidade);lista_cidades
+lista_anos = unique(data$Year);lista_anos
+final = NULL
+
+i=1;i
+
+
+while (i <= length(lista_cidades)) {
+csv_filtrado_cidade = data[data$Cidade == lista_cidades[i],];csv_filtrado_cidade
+j=1;j
+while (j<=length(lista_anos)) {
+  csv_filtrado_cidade_ano = csv_filtrado_cidade[csv_filtrado_cidade$Year == lista_anos[j],];csv_filtrado_cidade_ano
+  csv_filtrado_verao = csv_filtrado_cidade_ano[csv_filtrado_cidade_ano$Month == verao,];csv_filtrado_verao
+  csv_filtrado_inverno = csv_filtrado_cidade_ano[csv_filtrado_cidade_ano$Month != verao,];csv_filtrado_inverno
+  
+
+tann = mean(csv_filtrado_cidade_ano$Tmed);tann
+t_cold = min(csv_filtrado_cidade_ano$Tmed);t_cold
+t_hot = max(csv_filtrado_cidade_ano$Tmed);t_hot
+tm10 = nrow(csv_filtrado_cidade_ano[csv_filtrado_cidade_ano$Tmed>10]);tm10
+
+
+rdry = min(csv_filtrado_cidade_ano$P);rdry
+
+rann = sum(csv_filtrado_cidade_ano$P);rann
+rsdry = min(csv_filtrado_verao$P);rsdry
+rswet = max(csv_filtrado_verao$P);rswet
+
+rwdry = min(csv_filtrado_inverno$P);rwdry
+rwwet = max(csv_filtrado_inverno$P);rwwet
+
+pw = sum(csv_filtrado_inverno$P)/sum(csv_filtrado_cidade_ano$P);pw
+ps = 1-pw
+if(pw>=0.7){
+  rthreshold = 2*tann;rthreshold  
+}
+if(ps>=0.7 & pw < 0.3){
+  rthreshold = 2*(tann+28);rthreshold
+}else{
+  rthreshold = 2*(tann+14);rthreshold
+}
+
+if(t_cold>=18 & rdry >= 60){
+  Koppen = "Af" 
+}
+
+if(t_cold>=18 & rann >= (25*(100-rdry))){
+  Koppen = "Am" 
+}
+
+if(t_cold>=18 & rsdry < 60){
+  Koppen = "As" 
+}
+if(t_cold>=18 & rwdry < 60){
+  Koppen = "Aw" 
+}
+
+
+if(rann < 10*rthreshold &  tann >= 18){
+  Koppen = "BSh" 
+}
+
+if(rann < 10*rthreshold & tann < 18){
+  Koppen = "BSk" 
+}
+
+if(rann < 10*rthreshold & tann >= 18){
+  Koppen = "BWh" 
+}
+
+if(rann < 10*rthreshold & tann < 18){
+  Koppen = "BWk" 
+}
+
+if(t_cold<18 & (rwdry > rsdry | rswet < 10*rwdry) & (rsdry > rwdry | rwwet < 3*rsdry | rsdry > 40) & t_hot > 22){
+  Koppen = "Cfa" 
+}
+
+if(t_cold<18 & (rwdry > rsdry | rswet < 10*rwdry) & (rsdry > rwdry | rwwet < 3*rsdry | rsdry > 40) & tm10 > 4){
+  Koppen = "Cfb" 
+}
+
+if(t_cold<18 & (rwdry > rsdry | rswet < 10*rwdry) & (rsdry > rwdry | rwwet < 3*rsdry | rsdry > 40) & (t_hot > 22 | tm10 < 4) & t_cold > -38){
+  Koppen = "Cfc" 
+}
+
+if(t_cold< 18 & rwdry < rsdry & rswet > 10*rwdry & t_hot > 22){
+  Koppen = "Cwa" 
+}
+
+if(t_cold< 18 & rwdry < rsdry & rswet > 10*rwdry & t_hot < 22 & tm10 > 4){
+  Koppen = "Cwb" 
+}
+
+if(t_cold< 18 & rwdry < rsdry & rswet > 10*rwdry & (t_hot > 22 | tm10 < 4) & t_cold > -38){
+  Koppen = "Cwc" 
+}
+
+if(t_cold< 18 & rsdry < rwdry & rwwet > 3*rsdry & rsdry < 40 & t_hot > 22){
+  Koppen = "Csa" 
+}
+
+if(t_cold< 18 & rsdry < rwdry & rwwet > 3*rsdry & rsdry < 40 & t_hot < 22 & tm10 > 4){
+  Koppen = "Csb" 
+}
+
+if(t_cold< 18 & rsdry < rwdry & rwwet > 3*rsdry & rsdry < 40 & (t_hot > 22 | tm10 < 4) & t_cold > -38){
+  Koppen = "Csc" 
+}
+
+if(j==1){
+  cidade_anual = cbind(unique(csv_filtrado_cidade_ano$Year),unique(csv_filtrado_cidade_ano$Cidade),Koppen,tann,t_cold,t_hot,tm10,rdry,rann,rsdry,rsdry,rswet,rwdry,rwwet,pw,rthreshold);cidade_anual
+cidade_anual_final = cidade_anual
+j=j+1
+}else{
+  cidade_anual = cbind(unique(csv_filtrado_cidade_ano$Year),unique(csv_filtrado_cidade_ano$Cidade),Koppen,tann,t_cold,t_hot,tm10,rdry,rann,rsdry,rsdry,rswet,rwdry,rwwet,pw,rthreshold);cidade_anual
+  cidade_anual_final = rbind(cidade_anual_final,cidade_anual)
+  j=j+1
+}}
+final[[i]] = cidade_anual_final;
+i=i+1
+}
+df <- ldply(final, data.frame)
+
+out = paste0(diretorio,"/koppen_anual.csv")
+write.csv(df,out)
+
